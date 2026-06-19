@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Competencias de los Órganos Municipales — Ley 7/1985</title>
+<style>
+  :root{
+    --bg1:#0f172a;
+    --bg2:#1e293b;
+    --card-front:#ffffff;
+    --card-back:#1d4ed8;
+    --alcalde:#b45309;
+    --pleno:#15803d;
+    --jgl:#6d28d9;
+    --text-dark:#1e293b;
+    --text-light:#f8fafc;
+    --muted:#64748b;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;
+    padding:0;
+    min-height:100vh;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:linear-gradient(160deg,var(--bg1),var(--bg2));
+    color:var(--text-light);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  header{
+    width:100%;
+    max-width:680px;
+    text-align:center;
+    padding:22px 16px 6px;
+  }
+  header h1{
+    font-size:1.3rem;
+    margin:0 0 4px;
+    font-weight:700;
+    letter-spacing:.2px;
+  }
+  header p{
+    margin:0;
+    font-size:.85rem;
+    color:#94a3b8;
+  }
+  .stats{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-top:10px;
+    flex-wrap:wrap;
+  }
+  .pill{
+    font-size:.72rem;
+    padding:4px 10px;
+    border-radius:999px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.12);
+    color:#cbd5e1;
+  }
+  main{
+    flex:1;
+    width:100%;
+    max-width:560px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:18px 16px 40px;
+  }
+  .scene{
+    width:100%;
+    max-width:480px;
+    margin-top:8px;
+  }
+  .card{
+    width:100%;
+    min-height:340px;
+    cursor:pointer;
+    border-radius:22px;
+    box-shadow:0 18px 40px -10px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.06);
+    overflow:hidden;
+  }
+  .card-face{
+    width:100%;
+    min-height:340px;
+    border-radius:22px;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:30px 26px;
+    text-align:center;
+    box-sizing:border-box;
+  }
+  .card-face.is-visible{
+    display:flex;
+  }
+  .card-front{
+    background:var(--card-front);
+    color:var(--text-dark);
+  }
+  .card-front .tag{
+    font-size:.72rem;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--muted);
+    margin-bottom:14px;
+    font-weight:700;
+  }
+  .card-front .competencia-text{
+    font-size:1.12rem;
+    line-height:1.45;
+    font-weight:600;
+  }
+  .card-front .hint{
+    margin-top:18px;
+    font-size:.75rem;
+    color:#94a3b8;
+  }
+  .card-back{
+    color:#fff;
+    background:linear-gradient(150deg,#1d4ed8,#1e3a8a);
+  }
+  .card-back.organo-alcalde{ background:linear-gradient(150deg,#d97706,#92400e); }
+  .card-back.organo-pleno{ background:linear-gradient(150deg,#16a34a,#14532d); }
+  .card-back.organo-jgl{ background:linear-gradient(150deg,#7c3aed,#4c1d95); }
+
+  .organo-icon{
+    font-size:2.6rem;
+    margin-bottom:8px;
+  }
+  .organo-nombre{
+    font-size:1.5rem;
+    font-weight:800;
+    margin-bottom:6px;
+  }
+  .articulo-badge{
+    display:inline-block;
+    background:rgba(255,255,255,.18);
+    border-radius:999px;
+    padding:5px 14px;
+    font-size:.85rem;
+    font-weight:700;
+    margin-bottom:16px;
+  }
+  .back-competencia{
+    font-size:.92rem;
+    line-height:1.4;
+    opacity:.95;
+    max-width:380px;
+  }
+  .back-extra{
+    margin-top:14px;
+    font-size:.72rem;
+    opacity:.75;
+    font-style:italic;
+  }
+  .deleg-box{
+    margin-top:16px;
+    width:100%;
+    max-width:380px;
+    border-radius:14px;
+    padding:10px 14px;
+    background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.22);
+  }
+  .deleg-status{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    font-weight:800;
+    font-size:.88rem;
+    letter-spacing:.3px;
+  }
+  .deleg-status .deleg-emoji{ font-size:1rem; }
+  .deleg-detalle, .deleg-en{
+    margin-top:6px;
+    font-size:.78rem;
+    line-height:1.35;
+    opacity:.95;
+  }
+  .deleg-en b, .deleg-detalle b{ font-weight:700; }
+
+  .controls{
+    width:100%;
+    max-width:480px;
+    margin-top:24px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+  .btn-row{
+    width:100%;
+    display:flex;
+    gap:10px;
+  }
+  #nextBtn, #prevBtn{
+    padding:16px;
+    font-size:1.05rem;
+    font-weight:700;
+    border:none;
+    border-radius:16px;
+    color:#fff;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+    letter-spacing:.3px;
+  }
+  #nextBtn{
+    flex:1.4;
+    background:linear-gradient(135deg,#22c55e,#16a34a);
+    box-shadow:0 10px 24px -6px rgba(34,197,94,.5);
+  }
+  #prevBtn{
+    flex:1;
+    background:linear-gradient(135deg,#475569,#334155);
+    box-shadow:0 10px 24px -6px rgba(51,65,85,.5);
+  }
+  #nextBtn:hover, #prevBtn:hover{ transform:translateY(-2px); }
+  #nextBtn:active, #prevBtn:active{ transform:translateY(0px) scale(.98); }
+  #prevBtn:disabled{
+    opacity:.4;
+    cursor:not-allowed;
+    transform:none;
+  }
+
+  .tap-instruction{
+    font-size:.78rem;
+    color:#94a3b8;
+    text-align:center;
+  }
+
+  .legend{
+    margin-top:26px;
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .legend-item{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:.75rem;
+    color:#cbd5e1;
+  }
+  .dot{
+    width:10px;height:10px;border-radius:50%;
+  }
+  .dot-alcalde{ background:#d97706; }
+  .dot-pleno{ background:#16a34a; }
+  .dot-jgl{ background:#7c3aed; }
+
+  footer{
+    width:100%;
+    text-align:center;
+    padding:10px 16px 28px;
+    font-size:.68rem;
+    color:#64748b;
+  }
+
+  @media (max-width:380px){
+    .card-front .competencia-text{ font-size:1rem; }
+    .organo-nombre{ font-size:1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏛️ Competencias Municipales</h1>
+  <p>Ley 7/1985, de Bases del Régimen Local — Arts. 21, 22, 23, 122, 123, 124 y 127</p>
+  <div class="stats">
+    <span class="pill" id="totalPill">0 competencias</span>
+    <span class="pill" id="seenPill">0 vistas</span>
+  </div>
+</header>
+
+<main>
+  <div class="scene">
+    <div class="card" id="card">
+      <div class="card-face card-front is-visible" id="cardFront">
+        <div class="tag" id="frontTag">¿Qué órgano tiene esta competencia?</div>
+        <div class="competencia-text" id="frontText">Cargando...</div>
+        <div class="hint">👆 Toca la tarjeta para ver la respuesta</div>
+      </div>
+      <div class="card-face card-back" id="cardBack">
+        <div class="organo-icon" id="backIcon">🏛️</div>
+        <div class="organo-nombre" id="backOrgano">—</div>
+        <div class="articulo-badge" id="backArticulo">—</div>
+        <div class="back-competencia" id="backText">—</div>
+        <div class="deleg-box" id="delegBox">
+          <div class="deleg-status" id="delegStatus"><span class="deleg-emoji"></span><span id="delegStatusText"></span></div>
+          <div class="deleg-detalle" id="delegDetalle"></div>
+          <div class="deleg-en" id="delegEn"></div>
+        </div>
+        <div class="back-extra" id="backExtra"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="btn-row">
+      <button id="prevBtn">◀ Anterior</button>
+      <button id="nextBtn">Siguiente ➜</button>
+    </div>
+    <div class="tap-instruction">Pulsa la tarjeta para mostrar u ocultar la respuesta correcta</div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="dot dot-alcalde"></span> Alcalde</div>
+    <div class="legend-item"><span class="dot dot-pleno"></span> Pleno</div>
+    <div class="legend-item"><span class="dot dot-jgl"></span> Junta de Gobierno Local</div>
+  </div>
+</main>
+
+<footer>
+  Hecho para estudiar la Ley Reguladora de las Bases del Régimen Local · Funciona 100% sin conexión ni servidor.
+</footer>
+
+<script>
+/* ===========================================================
+   BASE DE DATOS DE COMPETENCIAS
+   Cada tarjeta: { organo, articulo, letra, texto, nota }
+   organo: "Alcalde" | "Pleno" | "Junta de Gobierno Local"
+   =========================================================== */
+const competencias = [
+
+  // ===================== ARTÍCULO 21 — EL ALCALDE (régimen común) =====================
+  // Régimen de delegación: art. 21.3. No delegable: a), e), j) [salvo en JGL], k), l), m),
+  // ni convocar/presidir Pleno y JGL ni decidir empates (parte de c), ni concertar operaciones
+  // de crédito (parte de f), ni la jefatura superior del personal, separación de funcionarios
+  // ni despido de personal laboral (parte de h).
+  { organo:"Alcalde", articulo:"21.1.a", texto:"Dirigir el gobierno y la administración municipal.",
+    deleg:{ tipo:"no" } },
+  { organo:"Alcalde", articulo:"21.1.b", texto:"Representar al ayuntamiento.",
+    deleg:{ tipo:"si", en:"miembros de la Junta de Gobierno Local (o Tenientes de Alcalde si no existe JGL), o mediante delegación especial en cualquier Concejal" } },
+  { organo:"Alcalde", articulo:"21.1.c", texto:"Convocar y presidir las sesiones del Pleno (salvo excepciones legales), de la Junta de Gobierno Local y de otros órganos municipales, y decidir los empates con voto de calidad.",
+    deleg:{ tipo:"no" } },
+  { organo:"Alcalde", articulo:"21.1.d", texto:"Dirigir, inspeccionar e impulsar los servicios y obras municipales.",
+    deleg:{ tipo:"si", en:"miembros de la Junta de Gobierno Local (o Tenientes de Alcalde si no existe JGL), o mediante delegación especial en cualquier Concejal" } },
+  { organo:"Alcalde", articulo:"21.1.e", texto:"Dictar bandos.",
+    deleg:{ tipo:"no" } },
+  { organo:"Alcalde", articulo:"21.1.f", texto:"Desarrollar la gestión económica conforme al presupuesto aprobado, disponer gastos dentro de los límites de su competencia, concertar operaciones de crédito (dentro de los límites legales), ordenar pagos y rendir cuentas.",
+    deleg:{ tipo:"parcial", detalle:"No delegable la concertación de operaciones de crédito; sí delegable el resto", en:"miembros de la Junta de Gobierno Local (o Tenientes de Alcalde), o delegación especial en un Concejal" } },
+  { organo:"Alcalde", articulo:"21.1.g", texto:"Aprobar la oferta de empleo público de acuerdo con el presupuesto y la plantilla, aprobar las bases de las pruebas de selección de personal y de los concursos de provisión de puestos, y distribuir las retribuciones complementarias no fijas ni periódicas.",
+    deleg:{ tipo:"si", en:"miembros de la Junta de Gobierno Local (o Tenientes de Alcalde), o delegación especial en un Concejal" } },
+  { organo:"Alcalde", articulo:"21.1.h", texto:"Desempeñar la jefatura superior de todo el personal, acordando su nombramiento y sanciones, incluida la separación del servicio de los funcionarios y el despido del personal laboral.",
+    deleg:{ tipo:"parcial", detalle:"No delegable la jefatura superior del personal, la separación del servicio de los funcionarios ni el despido del personal laboral; sí delegable el resto (nombramientos y sanciones ordinarias)", en:"miembros de la Junta de Gobierno Local (o Tenientes de Alcalde), o delegación especial en un Concejal" } },
+  { organo:"Alcalde", articulo:"21.1.i", texto:"Ejercer la jefatura de la Policía Municipal.",
+    deleg:{ tipo:"si", en:"miembros de la Junta de Gobierno Local (o Tenientes de Alcalde), o delegación especial en un Concejal" } },
+  { organo:"Alcalde", articulo:"21.1.j", texto:"Aprobar los instrumentos de planeamiento de desarrollo del planeamiento general no atribuidos expresamente al Pleno, así como los instrumentos de gestión urbanística y los proyectos de urbanización.",
+    deleg:{ tipo:"si-restringido", en:"únicamente en la Junta de Gobierno Local (es la única excepción admitida por la ley para esta atribución)" } },
+  { organo:"Alcalde", articulo:"21.1.k", texto:"Ejercer las acciones judiciales y administrativas y la defensa del ayuntamiento en materias de su competencia (incluso si las hubiera delegado), y en casos de urgencia también en materias de competencia del Pleno, dando cuenta a este.",
+    deleg:{ tipo:"no" } },
+  { organo:"Alcalde", articulo:"21.1.l", texto:"Tener la iniciativa para proponer al Pleno la declaración de lesividad en materias de competencia de la Alcaldía.",
+    deleg:{ tipo:"no" } },
+  { organo:"Alcalde", articulo:"21.1.m", texto:"Adoptar personalmente, y bajo su responsabilidad, en caso de catástrofe o infortunios públicos o grave riesgo, las medidas necesarias y adecuadas, dando cuenta inmediata al Pleno.",
+    deleg:{ tipo:"no" } },
+  { organo:"Alcalde", articulo:"21.1.n", texto:"Sancionar las faltas de desobediencia a su autoridad o por infracción de las ordenanzas municipales, salvo que esa facultad esté atribuida a otros órganos.",
+    deleg:{ tipo:"si", en:"miembros de la Junta de Gobierno Local (o Tenientes de Alcalde), o delegación especial en un Concejal" } },
+  { organo:"Alcalde", articulo:"21.1.o", texto:"Aprobar los proyectos de obras y de servicios cuando sea competente para su contratación o concesión y estén previstos en el presupuesto.",
+    deleg:{ tipo:"si", en:"miembros de la Junta de Gobierno Local (o Tenientes de Alcalde), o delegación especial en un Concejal" } },
+  { organo:"Alcalde", articulo:"21.1.q", texto:"Otorgar las licencias, salvo que las leyes sectoriales lo atribuyan expresamente al Pleno o a la Junta de Gobierno Local.",
+    deleg:{ tipo:"si", en:"miembros de la Junta de Gobierno Local (o Tenientes de Alcalde), o delegación especial en un Concejal" } },
+  { organo:"Alcalde", articulo:"21.1.r", texto:"Ordenar la publicación, ejecución y cumplimiento de los acuerdos del Ayuntamiento.",
+    deleg:{ tipo:"si", en:"miembros de la Junta de Gobierno Local (o Tenientes de Alcalde), o delegación especial en un Concejal" } },
+  { organo:"Alcalde", articulo:"21.2", texto:"Nombrar a los Tenientes de Alcalde.",
+    deleg:{ tipo:"no", detalle:"Es una facultad personal del Alcalde para configurar su propio equipo de gobierno" } },
+
+  // ===================== ARTÍCULO 22 — EL PLENO (régimen común) =====================
+  // Régimen de delegación: art. 22.4. Solo son delegables las letras j), k), m) y ñ) del
+  // apartado 2, y únicamente en el Alcalde y en la Junta de Gobierno Local. Todo lo demás
+  // (a, b, c, d, e, f, g, h, i, l, p y el apartado 3 completo) NO es delegable.
+  { organo:"Pleno", articulo:"22.2.a", texto:"El control y la fiscalización de los órganos de gobierno.",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"22.2.b", texto:"Acordar la participación en organizaciones supramunicipales; la alteración del término municipal; la creación o supresión de municipios y entidades de ámbito territorial inferior; la creación de órganos desconcentrados; la alteración de la capitalidad del municipio y el cambio de su nombre o el de aquellas entidades, así como adoptar o modificar su bandera, enseña o escudo.",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"22.2.c", texto:"Aprobar inicialmente el planeamiento general y la aprobación que ponga fin a la tramitación municipal de los planes y demás instrumentos de ordenación urbanística, así como los convenios que alteren dichos instrumentos.",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"22.2.d", texto:"Aprobar el reglamento orgánico y las ordenanzas.",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"22.2.e", texto:"Determinar los recursos propios de carácter tributario; aprobar y modificar los presupuestos; disponer gastos en materia de su competencia; y aprobar las cuentas.",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"22.2.f", texto:"Aprobar las formas de gestión de los servicios y los expedientes de municipalización.",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"22.2.g", texto:"Aceptar la delegación de competencias hecha por otras Administraciones públicas.",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"22.2.h", texto:"Plantear conflictos de competencias a otras entidades locales y demás Administraciones públicas.",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"22.2.i", texto:"Aprobar la plantilla de personal y la relación de puestos de trabajo, fijar la cuantía de las retribuciones complementarias fijas y periódicas de los funcionarios, y el número y régimen del personal eventual.",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"22.2.j", texto:"Ejercer acciones judiciales y administrativas y la defensa de la corporación en materias de competencia plenaria.",
+    deleg:{ tipo:"si", en:"el Alcalde o la Junta de Gobierno Local" } },
+  { organo:"Pleno", articulo:"22.2.k", texto:"Declarar la lesividad de los actos del Ayuntamiento.",
+    deleg:{ tipo:"si", en:"el Alcalde o la Junta de Gobierno Local" } },
+  { organo:"Pleno", articulo:"22.2.l", texto:"Alterar la calificación jurídica de los bienes de dominio público.",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"22.2.m", texto:"Concertar operaciones de crédito cuya cuantía acumulada exceda del 10% de los recursos ordinarios del presupuesto (con las salvedades legales sobre operaciones de tesorería).",
+    deleg:{ tipo:"si", en:"el Alcalde o la Junta de Gobierno Local" } },
+  { organo:"Pleno", articulo:"22.2.ñ", texto:"Aprobar los proyectos de obras y servicios cuando sea competente para su contratación o concesión y aún no estén previstos en los presupuestos.",
+    deleg:{ tipo:"si", en:"el Alcalde o la Junta de Gobierno Local" } },
+  { organo:"Pleno", articulo:"22.3", texto:"Votar la moción de censura al Alcalde y la cuestión de confianza planteada por este (votación pública y mediante llamamiento nominal).",
+    deleg:{ tipo:"no" } },
+
+  // ===================== ARTÍCULO 23 — JUNTA DE GOBIERNO LOCAL (régimen común) =====================
+  { organo:"Junta de Gobierno Local", articulo:"23.2.a", texto:"Asistir al Alcalde en el ejercicio de sus atribuciones.",
+    deleg:{ tipo:"noaplica", detalle:"Es una función propia e inherente de la Junta, no es objeto de ulterior delegación" } },
+  { organo:"Junta de Gobierno Local", articulo:"23.2.b", texto:"Ejercer las atribuciones que el Alcalde u otro órgano municipal le delegue, o las que le atribuyan las leyes.",
+    deleg:{ tipo:"noaplica", detalle:"Esta competencia consiste, precisamente, en recibir delegaciones, no en delegar" } },
+
+  // ===================== ARTÍCULO 122 — ORGANIZACIÓN DEL PLENO (municipios de gran población) =====================
+  { organo:"Pleno", articulo:"122.1", texto:"Ser el órgano de máxima representación política de los ciudadanos en el gobierno municipal (en municipios de gran población).", nota:"Título X — Régimen de gran población",
+    deleg:{ tipo:"noaplica", detalle:"Carácter definitorio del órgano, no es una atribución delegable" } },
+  { organo:"Pleno", articulo:"122.3", texto:"Dotarse de su propio reglamento, que tendrá naturaleza orgánica, pudiendo regularse también en el reglamento orgánico municipal.", nota:"Título X — Régimen de gran población",
+    deleg:{ tipo:"no", detalle:"Forma parte de los reglamentos de naturaleza orgánica (art. 123.1.c), que no son delegables" } },
+  { organo:"Alcalde", articulo:"122.2", texto:"Convocar y presidir el Pleno (salvo excepciones legales) en los municipios de gran población, decidiendo los empates con voto de calidad; puede delegar solo la convocatoria y presidencia en un concejal.", nota:"Título X — Régimen de gran población",
+    deleg:{ tipo:"parcial", detalle:"Solo son delegables la convocatoria y la presidencia del Pleno; decidir los empates con voto de calidad NO es delegable", en:"exclusivamente en uno de los concejales" } },
+
+  // ===================== ARTÍCULO 123 — ATRIBUCIONES DEL PLENO (municipios de gran población) =====================
+  // Régimen de delegación: art. 123.3. Solo son delegables las letras d), k), m) y ñ), y
+  // únicamente a favor de las Comisiones del Pleno (art. 122.4). El resto NO es delegable.
+  { organo:"Pleno", articulo:"123.1.a", texto:"El control y la fiscalización de los órganos de gobierno.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"123.1.b", texto:"Votar la moción de censura al Alcalde y la cuestión de confianza planteada por este, mediante llamamiento nominal.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"123.1.c", texto:"Aprobar y modificar los reglamentos de naturaleza orgánica (regulación del Pleno, del Consejo Social de la Ciudad, de la Comisión de Sugerencias y Reclamaciones, de los distritos, de los niveles esenciales de la organización municipal, etc.).", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"123.1.d", texto:"Aprobar y modificar las ordenanzas y reglamentos municipales.", nota:"Título X — gran población",
+    deleg:{ tipo:"si", en:"las Comisiones del Pleno (art. 122.4)" } },
+  { organo:"Pleno", articulo:"123.1.e", texto:"Acordar la delimitación y alteración del término municipal, la creación o supresión de entidades de ámbito inferior, la alteración de la capitalidad y el cambio de denominación, y adoptar o modificar la bandera, enseña o escudo.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"123.1.f", texto:"Acordar la participación en organizaciones supramunicipales.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"123.1.g", texto:"Determinar los recursos propios de carácter tributario.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"123.1.h", texto:"Aprobar los presupuestos, la plantilla de personal, autorizar gastos en materias de su competencia y aprobar la cuenta general del ejercicio.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"123.1.i", texto:"Aprobar inicialmente el planeamiento general y la aprobación que ponga fin a la tramitación municipal de los instrumentos de ordenación urbanística.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"123.1.j", texto:"Transferir funciones o actividades a otras Administraciones públicas, y aceptar delegaciones o encomiendas de gestión de otras Administraciones.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"123.1.k", texto:"Determinar las formas de gestión de los servicios, acordar la creación de organismos autónomos, entidades públicas empresariales y sociedades mercantiles, y aprobar los expedientes de municipalización.", nota:"Título X — gran población",
+    deleg:{ tipo:"si", en:"las Comisiones del Pleno (art. 122.4)" } },
+  { organo:"Pleno", articulo:"123.1.l", texto:"Revisar de oficio sus propios actos y disposiciones de carácter general.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"123.1.m", texto:"Ejercer acciones judiciales y administrativas y la defensa jurídica del Pleno en materias de su competencia.", nota:"Título X — gran población",
+    deleg:{ tipo:"si", en:"las Comisiones del Pleno (art. 122.4)" } },
+  { organo:"Pleno", articulo:"123.1.n", texto:"Establecer el régimen retributivo de los miembros del Pleno, del secretario general, del Alcalde, de los miembros de la Junta de Gobierno Local y de los órganos directivos municipales.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Pleno", articulo:"123.1.ñ", texto:"Plantear conflictos de competencia a otras entidades locales y Administraciones públicas.", nota:"Título X — gran población",
+    deleg:{ tipo:"si", en:"las Comisiones del Pleno (art. 122.4)" } },
+  { organo:"Pleno", articulo:"123.1.o", texto:"Acordar la iniciativa para que el municipio pueda ser incluido en el ámbito de aplicación del régimen de gran población (Título X).", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+
+  // ===================== ARTÍCULO 124 — EL ALCALDE (municipios de gran población) =====================
+  // Régimen de delegación: art. 124.5. NO delegables: b), e), h), j); ni convocar/presidir la
+  // JGL ni decidir empates (parte de d); ni dictar bandos (parte de g). Las letras c) y k) SOLO
+  // son delegables en la Junta de Gobierno Local. El resto es delegable en la JGL, sus miembros,
+  // los demás concejales, coordinadores generales, directores generales u órganos similares.
+  { organo:"Alcalde", articulo:"124.1", texto:"Ostentar la máxima representación del municipio (en municipios de gran población).", nota:"Título X — gran población",
+    deleg:{ tipo:"noaplica", detalle:"Carácter representativo, no es una atribución delegable" } },
+  { organo:"Alcalde", articulo:"124.4.a", texto:"Representar al ayuntamiento.", nota:"Título X — gran población",
+    deleg:{ tipo:"si", en:"la Junta de Gobierno Local, sus miembros, los demás concejales, o coordinadores/directores generales" } },
+  { organo:"Alcalde", articulo:"124.4.b", texto:"Dirigir la política, el gobierno y la administración municipal, sin perjuicio de la acción colegiada de la Junta de Gobierno Local en sus funciones ejecutivas y administrativas.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Alcalde", articulo:"124.4.c", texto:"Establecer las directrices generales de la acción de gobierno municipal y asegurar su continuidad.", nota:"Título X — gran población",
+    deleg:{ tipo:"si-restringido", en:"únicamente en la Junta de Gobierno Local" } },
+  { organo:"Alcalde", articulo:"124.4.d", texto:"Convocar y presidir las sesiones del Pleno y de la Junta de Gobierno Local, decidiendo los empates con voto de calidad.", nota:"Título X — gran población",
+    deleg:{ tipo:"parcial", detalle:"Convocar y presidir el Pleno se puede delegar solo en un concejal (art. 122.2); convocar/presidir la Junta de Gobierno Local y decidir los empates con voto de calidad NO son delegables" } },
+  { organo:"Alcalde", articulo:"124.4.e", texto:"Nombrar y cesar a los Tenientes de Alcalde y a los Presidentes de los Distritos.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Alcalde", articulo:"124.4.f", texto:"Ordenar la publicación, ejecución y cumplimiento de los acuerdos de los órganos ejecutivos del ayuntamiento.", nota:"Título X — gran población",
+    deleg:{ tipo:"si", en:"la Junta de Gobierno Local, sus miembros, los demás concejales, o coordinadores/directores generales" } },
+  { organo:"Alcalde", articulo:"124.4.g", texto:"Dictar bandos, decretos e instrucciones.", nota:"Título X — gran población",
+    deleg:{ tipo:"parcial", detalle:"Dictar bandos NO es delegable; los decretos e instrucciones sí son delegables", en:"la Junta de Gobierno Local, sus miembros, los demás concejales, o coordinadores/directores generales" } },
+  { organo:"Alcalde", articulo:"124.4.h", texto:"Adoptar las medidas necesarias y adecuadas en casos de extraordinaria y urgente necesidad, dando cuenta inmediata al Pleno.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Alcalde", articulo:"124.4.i", texto:"Ejercer la superior dirección del personal al servicio de la Administración municipal.", nota:"Título X — gran población",
+    deleg:{ tipo:"si", en:"la Junta de Gobierno Local, sus miembros, los demás concejales, o coordinadores/directores generales" } },
+  { organo:"Alcalde", articulo:"124.4.j", texto:"Ejercer la Jefatura de la Policía Municipal.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Alcalde", articulo:"124.4.k", texto:"Establecer la organización y estructura de la Administración municipal ejecutiva, sin perjuicio de las competencias del Pleno en materia de organización municipal.", nota:"Título X — gran población",
+    deleg:{ tipo:"si-restringido", en:"únicamente en la Junta de Gobierno Local" } },
+  { organo:"Alcalde", articulo:"124.4.l", texto:"Ejercer las acciones judiciales y administrativas en materia de su competencia, y en caso de urgencia también en materias de competencia del Pleno, dando cuenta a este para su ratificación.", nota:"Título X — gran población",
+    deleg:{ tipo:"si", en:"la Junta de Gobierno Local, sus miembros, los demás concejales, o coordinadores/directores generales" } },
+  { organo:"Alcalde", articulo:"124.4.m", texto:"Ejercer las facultades de revisión de oficio de sus propios actos.", nota:"Título X — gran población",
+    deleg:{ tipo:"si", en:"la Junta de Gobierno Local, sus miembros, los demás concejales, o coordinadores/directores generales" } },
+  { organo:"Alcalde", articulo:"124.4.n", texto:"Autorizar y disponer gastos en las materias de su competencia.", nota:"Título X — gran población",
+    deleg:{ tipo:"si", en:"la Junta de Gobierno Local, sus miembros, los demás concejales, o coordinadores/directores generales" } },
+
+  // ===================== ARTÍCULO 127 — ATRIBUCIONES DE LA JUNTA DE GOBIERNO LOCAL (municipios de gran población) =====================
+  // Régimen de delegación: art. 127.2. Son delegables las letras e), f), g) y l) completas, y
+  // la letra h) solo parcialmente. El resto (a, b, c, d, i, j, k) NO es delegable.
+  { organo:"Junta de Gobierno Local", articulo:"127.1.a", texto:"Aprobar los proyectos de ordenanzas y de los reglamentos, incluidos los orgánicos, excepto las normas reguladoras del Pleno y sus comisiones.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Junta de Gobierno Local", articulo:"127.1.b", texto:"Aprobar el proyecto de presupuesto.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Junta de Gobierno Local", articulo:"127.1.c", texto:"Aprobar los proyectos de instrumentos de ordenación urbanística cuya aprobación definitiva o provisional corresponda al Pleno.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Junta de Gobierno Local", articulo:"127.1.d", texto:"Aprobar los instrumentos de planeamiento de desarrollo no atribuidos expresamente al Pleno, así como los instrumentos de gestión urbanística y los proyectos de urbanización.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Junta de Gobierno Local", articulo:"127.1.e", texto:"Conceder cualquier tipo de licencia, salvo que la legislación sectorial la atribuya expresamente a otro órgano.", nota:"Título X — gran población",
+    deleg:{ tipo:"si", en:"Tenientes de Alcalde, demás miembros de la JGL, concejales, coordinadores generales o directores generales" } },
+  { organo:"Junta de Gobierno Local", articulo:"127.1.f", texto:"Realizar contrataciones y concesiones (incluidas las plurianuales), gestionar, adquirir y enajenar el patrimonio, y concertar operaciones de crédito, de acuerdo con el presupuesto.", nota:"Título X — gran población",
+    deleg:{ tipo:"si", en:"Tenientes de Alcalde, demás miembros de la JGL, concejales, coordinadores generales o directores generales" } },
+  { organo:"Junta de Gobierno Local", articulo:"127.1.g", texto:"Desarrollar la gestión económica, autorizar y disponer gastos en materia de su competencia, disponer gastos previamente autorizados por el Pleno, y gestionar el personal.", nota:"Título X — gran población",
+    deleg:{ tipo:"si", en:"Tenientes de Alcalde, demás miembros de la JGL, concejales, coordinadores generales o directores generales" } },
+  { organo:"Junta de Gobierno Local", articulo:"127.1.h", texto:"Aprobar la relación de puestos de trabajo, las retribuciones del personal, la oferta de empleo público, las bases de selección, el número y régimen del personal eventual, la separación del servicio de los funcionarios, el despido del personal laboral y el régimen disciplinario.", nota:"Título X — gran población",
+    deleg:{ tipo:"parcial", detalle:"NO delegable la aprobación de la RPT, las retribuciones del personal, la oferta de empleo público, el número/régimen del personal eventual ni la separación del servicio de los funcionarios; SÍ delegable el resto (bases de selección, despido del personal laboral, régimen disciplinario, etc.)", en:"Tenientes de Alcalde, demás miembros de la JGL, concejales, coordinadores generales o directores generales" } },
+  { organo:"Junta de Gobierno Local", articulo:"127.1.i", texto:"Nombrar y cesar a los titulares de los órganos directivos de la Administración municipal.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Junta de Gobierno Local", articulo:"127.1.j", texto:"Ejercer las acciones judiciales y administrativas en materia de su competencia.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Junta de Gobierno Local", articulo:"127.1.k", texto:"Ejercer las facultades de revisión de oficio de sus propios actos.", nota:"Título X — gran población",
+    deleg:{ tipo:"no" } },
+  { organo:"Junta de Gobierno Local", articulo:"127.1.l", texto:"Ejercer la potestad sancionadora, salvo que por ley esté atribuida a otro órgano.", nota:"Título X — gran población",
+    deleg:{ tipo:"si", en:"Tenientes de Alcalde, demás miembros de la JGL, concejales, coordinadores generales o directores generales" } },
+];
+
+/* ===========================================================
+   LÓGICA DEL JUEGO
+   =========================================================== */
+const ORGAN_INFO = {
+  "Alcalde": { icon:"🎖️", className:"organo-alcalde" },
+  "Pleno": { icon:"🏛️", className:"organo-pleno" },
+  "Junta de Gobierno Local": { icon:"⚖️", className:"organo-jgl" }
+};
+
+const cardEl = document.getElementById('card');
+const cardFrontEl = document.getElementById('cardFront');
+const cardBackEl = document.getElementById('cardBack');
+const frontTextEl = document.getElementById('frontText');
+const backIconEl = document.getElementById('backIcon');
+const backOrganoEl = document.getElementById('backOrgano');
+const backArticuloEl = document.getElementById('backArticulo');
+const backTextEl = document.getElementById('backText');
+const backExtraEl = document.getElementById('backExtra');
+const delegStatusTextEl = document.getElementById('delegStatusText');
+const delegEmojiEl = document.querySelector('#delegStatus .deleg-emoji');
+const delegDetalleEl = document.getElementById('delegDetalle');
+const delegEnEl = document.getElementById('delegEn');
+const nextBtn = document.getElementById('nextBtn');
+const prevBtn = document.getElementById('prevBtn');
+const totalPill = document.getElementById('totalPill');
+const seenPill = document.getElementById('seenPill');
+
+let seenCount = 0;
+let history = [];   // array de competencias ya mostradas, en orden
+let pointer = -1;   // índice actual dentro de history
+let showingAnswer = false;
+let lastIndex = -1;
+
+function pickRandomIndex(){
+  let idx;
+  if (competencias.length > 1){
+    do { idx = Math.floor(Math.random() * competencias.length); }
+    while (idx === lastIndex);
+  } else {
+    idx = 0;
+  }
+  lastIndex = idx;
+  return idx;
+}
+
+function renderFront(item){
+  frontTextEl.textContent = item.texto;
+}
+
+function renderBack(item){
+  const info = ORGAN_INFO[item.organo] || { icon:"🏛️", className:"" };
+  backIconEl.textContent = info.icon;
+  backOrganoEl.textContent = item.organo;
+  backArticuloEl.textContent = "Artículo " + item.articulo;
+  backTextEl.textContent = item.texto;
+  backExtraEl.textContent = item.nota ? item.nota : "Ley 7/1985, de Bases del Régimen Local";
+
+  cardBackEl.classList.remove('organo-alcalde','organo-pleno','organo-jgl');
+  if (info.className) cardBackEl.classList.add(info.className);
+
+  const d = item.deleg || { tipo:"no" };
+  const DELEG_LABELS = {
+    "si":          { emoji:"✅", texto:"DELEGABLE" },
+    "no":          { emoji:"⛔", texto:"NO DELEGABLE" },
+    "parcial":     { emoji:"⚠️", texto:"DELEGABLE PARCIALMENTE" },
+    "si-restringido": { emoji:"☑️", texto:"DELEGABLE (con restricción)" },
+    "noaplica":    { emoji:"➖", texto:"NO APLICA DELEGACIÓN" }
+  };
+  const label = DELEG_LABELS[d.tipo] || DELEG_LABELS["no"];
+  delegEmojiEl.textContent = label.emoji;
+  delegStatusTextEl.textContent = label.texto;
+
+  delegDetalleEl.textContent = d.detalle ? d.detalle : "";
+  delegDetalleEl.style.display = d.detalle ? "block" : "none";
+
+  delegEnEl.textContent = d.en ? ("Se delega en: " + d.en) : "";
+  delegEnEl.style.display = d.en ? "block" : "none";
+}
+
+function showCurrent(){
+  const item = history[pointer];
+  renderFront(item);
+  renderBack(item);
+  setAnswerVisible(false);
+  prevBtn.disabled = (pointer <= 0);
+}
+
+function setAnswerVisible(visible){
+  showingAnswer = visible;
+  cardFrontEl.classList.toggle('is-visible', !visible);
+  cardBackEl.classList.toggle('is-visible', visible);
+}
+
+function goNext(){
+  if (pointer < history.length - 1){
+    // Ya existe una tarjeta siguiente en el historial (venimos de pulsar "Anterior")
+    pointer++;
+  } else {
+    // Generamos una nueva tarjeta aleatoria
+    const idx = pickRandomIndex();
+    history.push(competencias[idx]);
+    pointer = history.length - 1;
+  }
+  showCurrent();
+  seenCount++;
+  seenPill.textContent = seenCount + (seenCount === 1 ? " vista" : " vistas");
+}
+
+function goPrev(){
+  if (pointer > 0){
+    pointer--;
+    showCurrent();
+  }
+}
+
+cardEl.addEventListener('click', () => {
+  setAnswerVisible(!showingAnswer);
+});
+
+nextBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  goNext();
+});
+
+prevBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  goPrev();
+});
+
+// Inicialización
+totalPill.textContent = competencias.length + " competencias";
+goNext();
+
+</script>
+</body>
+</html>
